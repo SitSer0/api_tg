@@ -16,7 +16,18 @@
  */
 
 export default async function handler(req, res) {
-    // Разрешаем только POST запросы
+    // Устанавливаем CORS заголовки для всех ответов (важно ставить ДО проверки метода)
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    res.setHeader('Access-Control-Max-Age', '86400');
+
+    // Обработка CORS preflight запросов (OPTIONS)
+    if (req.method === 'OPTIONS') {
+        return res.status(200).end();
+    }
+
+    // Разрешаем только POST запросы (OPTIONS уже обработан выше)
     if (req.method !== 'POST') {
         return res.status(405).json({ 
             success: false,
@@ -47,45 +58,88 @@ export default async function handler(req, res) {
 
         // Получаем токен бота и Chat ID из переменных окружения
         const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-        const CHAT_ID = process.env.TELEGRAM_CHAT_ID;
+        let CHAT_ID = process.env.TELEGRAM_CHAT_ID;
+
+        // Логирование для отладки (без токена)
+        console.log('Telegram configuration check:');
+        console.log('- BOT_TOKEN exists:', !!BOT_TOKEN);
+        console.log('- BOT_TOKEN length:', BOT_TOKEN ? BOT_TOKEN.length : 0);
+        console.log('- CHAT_ID exists:', !!CHAT_ID);
+        console.log('- CHAT_ID value:', CHAT_ID ? '***' : 'missing');
 
         // Проверка наличия конфигурации
         if (!BOT_TOKEN || !CHAT_ID) {
-            console.error('Telegram configuration missing');
+            console.error('❌ Telegram configuration missing');
+            console.error('- BOT_TOKEN:', BOT_TOKEN ? 'SET' : 'MISSING');
+            console.error('- CHAT_ID:', CHAT_ID ? 'SET' : 'MISSING');
             return res.status(500).json({
                 success: false,
                 error: 'Telegram bot not configured. Please set TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID environment variables.'
             });
         }
 
+        // Преобразуем Chat ID в число (Telegram API принимает и строку и число, но лучше число)
+        // Обрабатываем случай, когда Chat ID отрицательный (для групп)
+        const chatIdNum = Number(CHAT_ID);
+        if (isNaN(chatIdNum)) {
+            console.error('❌ Invalid CHAT_ID format:', CHAT_ID);
+            return res.status(500).json({
+                success: false,
+                error: 'Invalid CHAT_ID format. Must be a number.'
+            });
+        }
+
+        console.log('✅ Configuration valid');
+        console.log('📝 Form data received:', {
+            name: name.substring(0, 20) + '...',
+            email: email.substring(0, 20) + '...',
+            company: company ? company.substring(0, 20) + '...' : 'not provided',
+            messageLength: message.length
+        });
+
         // Формируем структурированное сообщение
         const telegramMessage = formatTelegramMessage(name, email, company, message);
+        console.log('📨 Formatted Telegram message length:', telegramMessage.length);
 
         // Отправляем сообщение в Telegram через Bot API
+        console.log('🚀 Sending message to Telegram API...');
         const telegramResponse = await sendTelegramMessage(
             BOT_TOKEN,
-            CHAT_ID,
+            chatIdNum,
             telegramMessage
         );
 
+        console.log('📥 Telegram API response received:');
+        console.log('- ok:', telegramResponse.ok);
+        console.log('- error_code:', telegramResponse.error_code);
+        console.log('- description:', telegramResponse.description);
+
         // Проверяем успешность отправки
         if (telegramResponse.ok) {
+            console.log('✅ Telegram message sent successfully!');
+            console.log('- Message ID:', telegramResponse.result.message_id);
             return res.status(200).json({
                 success: true,
                 message: 'Telegram notification sent successfully',
                 messageId: telegramResponse.result.message_id
             });
         } else {
-            throw new Error(`Telegram API error: ${telegramResponse.description || 'Unknown error'}`);
+            const errorMsg = `Telegram API error: ${telegramResponse.error_code || 'unknown'} - ${telegramResponse.description || 'Unknown error'}`;
+            console.error('❌ Telegram API error:', errorMsg);
+            throw new Error(errorMsg);
         }
 
     } catch (error) {
-        console.error('Error sending Telegram notification:', error);
+        console.error('❌ Error sending Telegram notification:', error);
+        console.error('Error name:', error.name);
+        console.error('Error message:', error.message);
+        console.error('Error stack:', error.stack);
         
         return res.status(500).json({
             success: false,
             error: 'Failed to send Telegram notification',
-            details: process.env.NODE_ENV === 'development' ? error.message : undefined
+            details: error.message || 'Unknown error',
+            errorCode: error.code
         });
     }
 }
@@ -123,20 +177,41 @@ function formatTelegramMessage(name, email, company, message) {
 async function sendTelegramMessage(botToken, chatId, text) {
     const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
     
-    const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            chat_id: chatId,
-            text: text,
-            parse_mode: 'HTML',
-            disable_web_page_preview: true
-        })
-    });
+    console.log('📡 Calling Telegram Bot API...');
+    console.log('- URL:', url.replace(botToken, 'TOKEN_HIDDEN'));
+    console.log('- Chat ID:', chatId);
+    console.log('- Message length:', text.length);
+    
+    const requestBody = {
+        chat_id: chatId,
+        text: text,
+        parse_mode: 'HTML',
+        disable_web_page_preview: true
+    };
+    
+    console.log('📤 Request body (chat_id only):', { chat_id: chatId, text_length: text.length });
 
-    return await response.json();
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestBody)
+        });
+
+        const responseData = await response.json();
+        
+        console.log('📥 Telegram API raw response:');
+        console.log('- Status:', response.status);
+        console.log('- Status text:', response.statusText);
+        console.log('- Response data:', JSON.stringify(responseData).substring(0, 200));
+
+        return responseData;
+    } catch (fetchError) {
+        console.error('❌ Fetch error:', fetchError);
+        throw new Error(`Failed to call Telegram API: ${fetchError.message}`);
+    }
 }
 
 /**
