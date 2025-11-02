@@ -1740,12 +1740,12 @@
         // ⚠️ ВАЖНО: Для безопасности используйте serverless function
         // Токен бота НЕ должен быть в коде фронтенда для продакшена!
         
-        // URL вашего serverless function (замените на реальный URL)
-        // Для Vercel: https://your-domain.vercel.app/api/telegram
+        // URL вашего serverless function
+        // Для Vercel: https://api-tg-one.vercel.app/api/telegram
         // Для Netlify: https://your-domain.netlify.app/.netlify/functions/telegram
         // Для локальной разработки: http://localhost:3000/api/telegram
         
-        const TELEGRAM_API_URL = '/api/telegram'; // Измените на ваш URL API
+        const TELEGRAM_API_URL = 'https://api-tg-one.vercel.app/api/telegram';
         
         // ============================================
         // НАСТРОЙКА EMAILJS
@@ -2468,6 +2468,14 @@
                     return;
                 }
 
+                console.log('Sending Telegram notification to:', TELEGRAM_API_URL);
+                console.log('Form data:', {
+                    name: formData.name,
+                    email: formData.email,
+                    company: formData.company || '',
+                    message: formData.message
+                });
+
                 const response = await fetch(TELEGRAM_API_URL, {
                     method: 'POST',
                     headers: {
@@ -2481,16 +2489,35 @@
                     })
                 });
 
+                console.log('Telegram API response status:', response.status);
+                console.log('Telegram API response ok:', response.ok);
+
+                // Проверяем статус ответа
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('Telegram API error response:', errorText);
+                    throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+                }
+
                 const result = await response.json();
+                console.log('Telegram API response data:', result);
 
                 if (result.success) {
-                    console.log('Telegram notification sent successfully:', result);
+                    console.log('✅ Telegram notification sent successfully:', result);
+                    if (result.messageId) {
+                        console.log('📱 Telegram message ID:', result.messageId);
+                    }
                 } else {
-                    console.warn('Telegram notification failed:', result.error);
+                    console.error('❌ Telegram notification failed:', result.error || result);
                     // Не прерываем процесс, так как это не критично
                 }
             } catch (error) {
-                console.error('Error sending Telegram notification:', error);
+                console.error('❌ Error sending Telegram notification:', error);
+                console.error('Error details:', {
+                    message: error.message,
+                    stack: error.stack,
+                    name: error.name
+                });
                 // Не прерываем процесс, так как это не критично для работы формы
             }
         }
@@ -2629,13 +2656,20 @@
                     templateParams
                 );
 
-                console.log('Ответ от EmailJS:', response);
+                console.log('✅ Ответ от EmailJS:', response);
 
                 // Успешная отправка EmailJS - теперь отправляем в Telegram
+                console.log('📧 EmailJS отправлено успешно, отправляем уведомление в Telegram...');
                 try {
                     await sendTelegramNotification(formData);
+                    console.log('✅ Попытка отправки в Telegram завершена');
                 } catch (telegramError) {
-                    console.warn('Ошибка отправки в Telegram (не критично):', telegramError);
+                    console.error('⚠️ Ошибка отправки в Telegram (не критично):', telegramError);
+                    console.error('Telegram error details:', {
+                        message: telegramError.message,
+                        stack: telegramError.stack,
+                        name: telegramError.name
+                    });
                     // Не прерываем процесс, если Telegram не работает
                 }
 
@@ -2648,9 +2682,12 @@
                 contactForm.reset();
                 
             } catch (error) {
-                console.error('Детальная ошибка отправки формы:', error);
-                console.error('Код ошибки:', error.status);
-                console.error('Текст ошибки:', error.text);
+                console.error('❌ Детальная ошибка отправки формы:', error);
+                console.error('Error name:', error.name);
+                console.error('Error message:', error.message);
+                console.error('Код ошибки EmailJS:', error.status);
+                console.error('Текст ошибки EmailJS:', error.text);
+                console.error('Error stack:', error.stack);
                 
                 // Более детальное сообщение об ошибке
                 let errorMessage = 'Произошла ошибка при отправке формы.';
