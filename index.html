@@ -1,0 +1,2708 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+    <meta name="description" content="Кассиопея AI - Разработка AI-агентов и внедрение их в инфраструктуру бизнеса">
+    <title>AI Кассиопея - Разработка AI-агентов</title>
+    
+    <!-- Favicon с AI-тематикой -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%230066FF;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%230052CC;stop-opacity:1' /%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='50' cy='50' r='45' fill='url(%23grad)'/%3E%3Cpath d='M 30 50 L 45 65 L 70 35' stroke='white' stroke-width='8' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%230066FF;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%230052CC;stop-opacity:1' /%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='50' cy='50' r='45' fill='url(%23grad)'/%3E%3Cpath d='M 30 50 L 45 65 L 70 35' stroke='white' stroke-width='8' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E">
+    
+    <!-- Preconnect для оптимизации загрузки шрифтов -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- EmailJS SDK -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js" crossorigin="anonymous"></script>
+    
+    <style>
+        /* === ОБЩИЕ СТИЛИ === */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-blue: #0066FF;
+            --dark-blue: #003D99;
+            --light-blue: #E6F2FF;
+            --accent-blue: #0052CC;
+            --text-dark: #1A1A1A;
+            --text-gray: #666666;
+            --white: #FFFFFF;
+            --light-gray: #F5F5F5;
+            --border-gray: #E0E0E0;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-hover: 0 8px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            overflow-x: hidden;
+        }
+
+        /* === НАВИГАЦИЯ === */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: var(--white);
+            box-shadow: var(--shadow);
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .nav-menu li a {
+            color: var(--text-dark);
+        }
+
+        .logo {
+            color: var(--primary-blue);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-blue);
+            text-decoration: none;
+            transition: transform 0.3s ease;
+        }
+
+        .logo:hover {
+            transform: scale(1.05);
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-menu li a {
+            text-decoration: none;
+            color: var(--text-dark);
+            font-weight: 500;
+            transition: color 0.3s ease;
+            position: relative;
+        }
+
+        .nav-menu li a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary-blue);
+            transition: width 0.3s ease;
+        }
+
+        .nav-menu li a:hover {
+            color: var(--primary-blue);
+        }
+
+        .nav-menu li a:hover::after {
+            width: 100%;
+        }
+
+        .nav-cta {
+            background: var(--primary-blue);
+            color: var(--white);
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 102, 255, 0.3);
+        }
+
+        .nav-cta:hover {
+            background: var(--accent-blue);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 102, 255, 0.4);
+        }
+
+        /* Мобильное меню */
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            gap: 5px;
+        }
+
+        .menu-toggle span {
+            width: 25px;
+            height: 3px;
+            background: var(--text-dark);
+            border-radius: 3px;
+            transition: all 0.3s ease;
+        }
+
+        /* === СЕКЦИИ === */
+        section {
+            padding: 5rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* === ИНТЕРАКТИВНЫЙ AI-ФОН === */
+        .ai-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: linear-gradient(135deg, #F0F7FF 0%, #E6F2FF 50%, #CCE5FF 100%);
+            overflow: hidden;
+            transition: background 0.6s ease, opacity 0.6s ease;
+            opacity: 1;
+            will-change: background, opacity;
+            transform: translateZ(0); /* Аппаратное ускорение */
+            backface-visibility: hidden;
+        }
+
+        body {
+            background: var(--white);
+        }
+
+        /* Декоративные элементы фона */
+        .bg-decoration {
+            position: absolute;
+            opacity: 0.4;
+            pointer-events: none;
+            will-change: transform, opacity;
+            transform: translateZ(0);
+            backface-visibility: hidden;
+        }
+        
+        /* Оптимизация для мобильных устройств */
+        @media (max-width: 768px) {
+            .bg-decoration {
+                opacity: 0.2;
+            }
+            
+            .bg-grid {
+                opacity: 0.15;
+            }
+            
+            .gradient-orb {
+                filter: blur(60px);
+            }
+        }
+        
+        /* Уменьшение движения для пользователей с prefers-reduced-motion */
+        @media (prefers-reduced-motion: reduce) {
+            .ai-background,
+            .ai-canvas,
+            .gradient-orb,
+            .bg-decoration,
+            .bg-grid {
+                animation: none !important;
+                transition: background 0.3s ease, opacity 0.3s ease !important;
+            }
+        }
+
+        .bg-circle {
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(0, 102, 255, 0.25) 0%, rgba(0, 102, 255, 0.1) 50%, transparent 70%);
+            animation: floatDecor 25s ease-in-out infinite;
+            box-shadow: 0 0 60px rgba(0, 102, 255, 0.2);
+        }
+
+        .bg-circle-1 {
+            width: 600px;
+            height: 600px;
+            top: 5%;
+            left: -10%;
+            animation-delay: 0s;
+        }
+
+        .bg-circle-2 {
+            width: 400px;
+            height: 400px;
+            top: 40%;
+            right: -5%;
+            animation-delay: 8s;
+        }
+
+        .bg-circle-3 {
+            width: 500px;
+            height: 500px;
+            bottom: 10%;
+            left: 30%;
+            animation-delay: 15s;
+        }
+
+        .bg-grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 102, 255, 0.15) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 102, 255, 0.15) 1px, transparent 1px);
+            background-size: 60px 60px;
+            animation: gridMove 20s linear infinite;
+            opacity: 0.3;
+            will-change: transform, opacity;
+            transform: translateZ(0);
+            backface-visibility: hidden;
+        }
+        
+        /* Оптимизация для мобильных - упрощаем анимации */
+        @media (max-width: 768px) {
+            .ai-canvas {
+                opacity: 0.5;
+            }
+            
+            .gradient-orb {
+                filter: blur(60px);
+            }
+            
+            @keyframes floatDecor {
+                0%, 100% {
+                    transform: translate3d(0, 0, 0) scale(1);
+                }
+                50% {
+                    transform: translate3d(20px, -20px, 0) scale(1.05);
+                }
+            }
+        }
+        
+        /* Улучшенная производительность для трансформаций */
+        * {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        .service-card,
+        .project-card,
+        .tech-item {
+            transform: translateZ(0);
+            backface-visibility: hidden;
+        }
+
+        @keyframes floatDecor {
+            0%, 100% {
+                transform: translate(0, 0) scale(1);
+            }
+            33% {
+                transform: translate(30px, -30px) scale(1.1);
+            }
+            66% {
+                transform: translate(-20px, 20px) scale(0.9);
+            }
+        }
+
+        @keyframes gridMove {
+            0% {
+                transform: translate(0, 0);
+            }
+            100% {
+                transform: translate(50px, 50px);
+            }
+        }
+
+        .ai-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            will-change: transform;
+            transform: translateZ(0);
+            backface-visibility: hidden;
+        }
+
+        .gradient-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.3;
+            animation: float 20s ease-in-out infinite;
+            will-change: transform, opacity;
+            transform: translateZ(0);
+            backface-visibility: hidden;
+        }
+
+        .orb-1 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(0, 102, 255, 0.8) 0%, rgba(0, 102, 255, 0) 70%);
+            top: 10%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .orb-2 {
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(0, 82, 204, 0.6) 0%, rgba(0, 82, 204, 0) 70%);
+            top: 60%;
+            right: 15%;
+            animation-delay: 7s;
+        }
+
+        .orb-3 {
+            width: 350px;
+            height: 350px;
+            background: radial-gradient(circle, rgba(102, 153, 255, 0.5) 0%, rgba(102, 153, 255, 0) 70%);
+            bottom: 15%;
+            left: 50%;
+            animation-delay: 14s;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translate(0, 0) scale(1);
+            }
+            33% {
+                transform: translate(50px, -50px) scale(1.1);
+            }
+            66% {
+                transform: translate(-30px, 30px) scale(0.9);
+            }
+        }
+
+        /* === HERO СЕКЦИЯ === */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--light-blue) 0%, var(--white) 100%);
+            padding-top: 80px;
+            text-align: center;
+        }
+
+        .hero-content {
+            max-width: 800px;
+            animation: fadeInUp 1s ease;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+        }
+
+        .hero .subtitle {
+            font-size: 1.5rem;
+            color: var(--text-gray);
+            margin-bottom: 2rem;
+            font-weight: 400;
+        }
+
+        .hero .description {
+            font-size: 1.1rem;
+            color: var(--text-gray);
+            margin-bottom: 2.5rem;
+            line-height: 1.8;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            background: var(--primary-blue);
+            color: var(--white);
+            padding: 1rem 2.5rem;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow);
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-blue);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--primary-blue);
+            padding: 1rem 2.5rem;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            border: 2px solid var(--primary-blue);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary-blue);
+            color: var(--white);
+            transform: translateY(-3px);
+        }
+
+        /* === О НАС === */
+        .about {
+            background: var(--white);
+        }
+
+        .about-highlight {
+            background: var(--light-blue);
+            padding: 2rem;
+            border-radius: 12px;
+            border-left: 4px solid var(--primary-blue);
+        }
+
+        .about-highlight h3 {
+            color: var(--primary-blue);
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .section-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-gray);
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .about-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: center;
+        }
+
+        .about-text {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: var(--text-gray);
+        }
+
+        .about-text p {
+            margin-bottom: 1.5rem;
+        }
+
+        .about-highlight {
+            background: var(--light-blue);
+            padding: 2rem;
+            border-radius: 12px;
+            border-left: 4px solid var(--primary-blue);
+        }
+
+        .about-highlight h3 {
+            color: var(--primary-blue);
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        /* === УСЛУГИ === */
+        .services {
+            background: var(--light-gray);
+        }
+
+        .service-card {
+            background: var(--white);
+        }
+
+        .service-icon {
+            color: var(--primary-blue);
+        }
+
+        .service-card:hover .service-icon {
+            transform: scale(1.1) rotate(5deg);
+            color: var(--accent-blue);
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .service-card {
+            background: var(--white);
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .service-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+            animation: fadeInUp 0.6s ease;
+        }
+
+        .service-card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .service-icon {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 1.5rem;
+            color: var(--primary-blue);
+            transition: all 0.3s ease;
+        }
+
+        .service-card:hover .service-icon {
+            transform: scale(1.1) rotate(5deg);
+            color: var(--accent-blue);
+        }
+
+        .service-icon svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .service-card h3 {
+            font-size: 1.5rem;
+            color: var(--text-dark);
+            margin-bottom: 1rem;
+        }
+
+        .service-card p {
+            color: var(--text-gray);
+            line-height: 1.8;
+        }
+
+        /* === ПРОЕКТЫ === */
+        .projects {
+            background: var(--white);
+        }
+
+        .project-card {
+            background: var(--light-blue);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .project-card::before {
+            content: 'Подробнее →';
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(0, 102, 255, 0.3);
+            backdrop-filter: blur(10px);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: var(--white);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .project-card:hover::before {
+            opacity: 1;
+        }
+
+        .project-card h3 {
+            font-size: 1.5rem;
+            color: var(--primary-blue);
+            margin-bottom: 1rem;
+        }
+
+        .project-card p {
+            color: var(--text-gray);
+            line-height: 1.8;
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .project-card {
+            background: var(--light-blue);
+            padding: 2rem;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .project-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+            animation: fadeInUp 0.6s ease;
+        }
+
+        .project-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow);
+        }
+
+
+        /* === МОДАЛЬНОЕ ОКНО ДЛЯ ПРОЕКТОВ === */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            padding: 2rem;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: rgba(26, 50, 64, 0.95);
+            backdrop-filter: blur(30px);
+            border-radius: 20px;
+            max-width: 900px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: scale(0.8) translateY(50px);
+            transition: transform 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: scale(1) translateY(0);
+        }
+
+        .modal-header {
+            padding: 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            color: var(--white);
+            font-size: 2rem;
+            margin: 0;
+        }
+
+        .modal-close {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: var(--white);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: rotate(90deg);
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        .modal-description {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 2rem;
+        }
+
+        .modal-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .modal-detail-item {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .modal-detail-item h4 {
+            color: var(--primary-blue);
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .modal-detail-item p {
+            color: var(--white);
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .modal-tech {
+            margin-top: 2rem;
+        }
+
+        .modal-tech h3 {
+            color: var(--white);
+            margin-bottom: 1rem;
+        }
+
+        .modal-tech-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .modal-tech-tag {
+            background: rgba(0, 102, 255, 0.2);
+            color: var(--white);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            border: 1px solid rgba(0, 102, 255, 0.3);
+        }
+
+        .modal-results {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: rgba(0, 102, 255, 0.1);
+            border-radius: 12px;
+            border-left: 4px solid var(--primary-blue);
+        }
+
+        .modal-results h3 {
+            color: var(--white);
+            margin-bottom: 1rem;
+        }
+
+        .modal-results ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .modal-results li {
+            color: rgba(255, 255, 255, 0.9);
+            padding: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .modal-results li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--primary-blue);
+            font-weight: bold;
+        }
+
+        /* === ТЕХНОЛОГИИ === */
+        .technologies {
+            background: var(--light-gray);
+        }
+
+        .tech-item {
+            background: var(--white);
+            color: var(--text-dark);
+        }
+
+        .tech-item:hover {
+            color: var(--primary-blue);
+        }
+
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1.5rem;
+            margin-top: 3rem;
+        }
+
+        .tech-item {
+            background: var(--white);
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: 600;
+            color: var(--text-dark);
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: scale(0.9);
+        }
+
+        .tech-item.visible {
+            opacity: 1;
+            transform: scale(1);
+            animation: scaleIn 0.5s ease;
+        }
+
+        .tech-item:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: var(--shadow-hover);
+            color: var(--primary-blue);
+        }
+
+        /* === КОНТАКТЫ === */
+        .contact {
+            background: var(--white);
+        }
+
+        .contact-item-icon {
+            color: var(--primary-blue);
+            background: var(--light-blue);
+        }
+
+        .contact-item:hover .contact-item-icon {
+            background: var(--primary-blue);
+            color: var(--white);
+        }
+
+        .contact-item-text h4 {
+            color: var(--text-dark);
+        }
+
+        .contact-item-text p {
+            color: var(--text-gray);
+        }
+
+        .contact-form {
+            background: var(--white);
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 102, 255, 0.15);
+            border-left: 5px solid var(--primary-blue);
+            border-top: 1px solid rgba(0, 102, 255, 0.1);
+            border-right: 1px solid rgba(0, 102, 255, 0.1);
+            border-bottom: 1px solid rgba(0, 102, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .contact-form::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-blue) 0%, var(--accent-blue) 100%);
+        }
+
+        .contact-form label {
+            color: var(--text-dark);
+        }
+
+        .contact-form input,
+        .contact-form textarea {
+            background: var(--white);
+            border: 2px solid var(--border-gray);
+            color: var(--text-dark);
+        }
+
+        .contact-form input::placeholder,
+        .contact-form textarea::placeholder {
+            color: var(--text-gray);
+        }
+
+        .contact-form input:focus,
+        .contact-form textarea:focus {
+            background: var(--white);
+        }
+
+        .contact-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            margin-top: 3rem;
+        }
+
+        .contact-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .contact-item-icon {
+            width: 48px;
+            height: 48px;
+            color: var(--primary-blue);
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--light-blue);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .contact-item:hover .contact-item-icon {
+            background: var(--primary-blue);
+            color: var(--white);
+            transform: scale(1.1);
+        }
+
+        .clickable-contact {
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .clickable-contact:hover {
+            transform: translateY(-5px);
+        }
+
+        .contact-modal {
+            max-width: 500px;
+        }
+
+        .contact-modal-body {
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .contact-modal-text {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+        }
+
+        .contact-links {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .contact-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            color: var(--white);
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .contact-link:hover {
+            background: rgba(0, 102, 255, 0.3);
+            border-color: var(--primary-blue);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 102, 255, 0.3);
+        }
+
+        .contact-link svg {
+            width: 24px;
+            height: 24px;
+            flex-shrink: 0;
+        }
+
+        .contact-link span {
+            color: var(--white);
+        }
+
+        @media (max-width: 768px) {
+            .contact-link {
+                font-size: 1rem;
+                padding: 1.25rem;
+            }
+        }
+
+        .contact-item-icon svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-dark);
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid var(--border-gray);
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: var(--white);
+            color: var(--text-dark);
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: var(--text-gray);
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-primary.loading {
+            position: relative;
+            color: transparent;
+        }
+
+        .btn-primary.loading::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            top: 50%;
+            left: 50%;
+            margin-left: -10px;
+            margin-top: -10px;
+            border: 3px solid var(--white);
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Уведомления */
+        .notification {
+            position: fixed;
+            top: 100px;
+            right: 2rem;
+            padding: 1.5rem 2rem;
+            background: var(--white);
+            border-radius: 12px;
+            box-shadow: var(--shadow-hover);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            min-width: 300px;
+            max-width: 500px;
+            animation: slideInRight 0.3s ease;
+            border-left: 4px solid var(--primary-blue);
+        }
+
+        .notification.success {
+            border-left-color: #10B981;
+        }
+
+        .notification.error {
+            border-left-color: #EF4444;
+        }
+
+        .notification-icon {
+            width: 24px;
+            height: 24px;
+            flex-shrink: 0;
+        }
+
+        .notification-icon svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .notification-content h4 {
+            margin-bottom: 0.25rem;
+            color: var(--text-dark);
+            font-size: 1rem;
+        }
+
+        .notification-content p {
+            color: var(--text-gray);
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOutRight {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+
+        .notification.hide {
+            animation: slideOutRight 0.3s ease forwards;
+        }
+
+        @media (max-width: 768px) {
+            .notification {
+                right: 1rem;
+                left: 1rem;
+                min-width: auto;
+                max-width: none;
+            }
+        }
+
+        /* === ФУТЕР === */
+        footer {
+            background: var(--dark-blue);
+            color: var(--white);
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .footer-logo {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .footer-text {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 2rem;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--white);
+        }
+
+        .footer-bottom {
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            padding-top: 2rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* === АНИМАЦИИ === */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* === АДАПТИВНОСТЬ === */
+        @media (max-width: 768px) {
+            .nav-menu {
+                position: fixed;
+                left: -100%;
+                top: 70px;
+                flex-direction: column;
+                background: var(--white);
+                width: 100%;
+                text-align: center;
+                transition: 0.3s;
+                box-shadow: var(--shadow);
+                padding: 2rem 0;
+            }
+
+            .nav-menu.active {
+                left: 0;
+            }
+
+            .menu-toggle {
+                display: flex;
+            }
+
+            .nav-cta {
+                display: none;
+            }
+
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero .subtitle {
+                font-size: 1.2rem;
+            }
+
+            .about-content,
+            .contact-container {
+                grid-template-columns: 1fr;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .services-grid,
+            .projects-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .tech-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+            }
+
+            .btn-primary,
+            .btn-secondary {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            section {
+                padding: 3rem 1rem;
+            }
+
+            .hero {
+                padding-top: 60px;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .nav-container {
+                padding: 1rem;
+            }
+
+            .modal-content {
+                max-width: 95%;
+                margin: 1rem;
+            }
+
+            .modal-header {
+                padding: 1.5rem;
+            }
+
+            .modal-header h2 {
+                font-size: 1.5rem;
+            }
+
+            .modal-body {
+                padding: 1.5rem;
+            }
+
+            .modal-details {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+    </head>
+<body>
+    <!-- === ИНТЕРАКТИВНЫЙ AI-ФОН === -->
+    <div class="ai-background">
+        <canvas class="ai-canvas" id="aiCanvas"></canvas>
+        <div class="bg-grid"></div>
+        <div class="gradient-orb orb-1"></div>
+        <div class="gradient-orb orb-2"></div>
+        <div class="gradient-orb orb-3"></div>
+        <div class="bg-decoration bg-circle bg-circle-1"></div>
+        <div class="bg-decoration bg-circle bg-circle-2"></div>
+        <div class="bg-decoration bg-circle bg-circle-3"></div>
+    </div>
+
+    <!-- === НАВИГАЦИЯ === -->
+    <nav>
+        <div class="nav-container">
+            <a href="#home" class="logo">Кассиопея AI</a>
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="#home">Главная</a></li>
+                <li><a href="#about">О нас</a></li>
+                <li><a href="#services">Услуги</a></li>
+                <li><a href="#projects">Проекты</a></li>
+                <li><a href="#technologies">Технологии</a></li>
+                <li><a href="#contact">Контакты</a></li>
+            </ul>
+            <a href="#contact" class="nav-cta">Обсудить проект</a>
+            <div class="menu-toggle" id="menuToggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- === HERO СЕКЦИЯ === -->
+    <section id="home" class="hero">
+        <div class="hero-content">
+            <h1>Кассиопея AI</h1>
+            <p class="subtitle">Разработка AI-агентов и внедрение их в инфраструктуру бизнеса</p>
+            <p class="description">
+                Мы команда из 10 талантливых разработчиков — учащихся и выпускников ведущих вузов, 
+                с опытом работы в таких компаниях, как Яндекс, Тинькофф, Роснефть и Сибур. 
+                Мы сочетаем передовые знания и практический опыт из крупнейших компаний страны.
+            </p>
+            <div class="cta-buttons">
+                <a href="#contact" class="btn-primary">Обсудить проект</a>
+                <a href="#about" class="btn-secondary">Узнать больше</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- === О НАС === -->
+    <section id="about" class="about">
+        <h2 class="section-title">О нас</h2>
+        <p class="section-subtitle">Команда профессионалов с опытом в ведущих IT-компаниях</p>
+        <div class="about-content">
+            <div class="about-text">
+                <p>
+                    Кассиопея — это команда разработчиков, специализирующихся на создании 
+                    интеллектуальных AI-агентов для оптимизации бизнес-процессов. Мы помогаем 
+                    среднему бизнесу внедрять современные технологии искусственного интеллекта 
+                    для повышения эффективности и снижения операционных затрат.
+                </p>
+                <p>
+                    Наша уникальность заключается в сочетании академических знаний из ведущих 
+                    вузов страны и практического опыта работы в крупнейших технологических и 
+                    промышленных компаниях России. Мы понимаем потребности бизнеса и знаем, 
+                    как применять AI для решения реальных задач.
+                </p>
+            </div>
+            <div class="about-highlight">
+                <h3>Наша миссия</h3>
+                <p>
+                    Сделать искусственный интеллект доступным инструментом для среднего бизнеса, 
+                    помогая компаниям конкурировать на рынке с помощью передовых технологий и 
+                    автоматизации процессов.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- === УСЛУГИ === -->
+    <section id="services" class="services">
+        <h2 class="section-title">Услуги</h2>
+        <p class="section-subtitle">Чем мы занимаемся</p>
+        <div class="services-grid">
+            <div class="service-card">
+                <div class="service-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                        <path d="M21 15l-5-5L5 21"></path>
+                    </svg>
+                </div>
+                <h3>Разработка AI-агентов</h3>
+                <p>
+                    Создание интеллектуальных агентов для автоматизации поддержки клиентов, 
+                    способных обрабатывать запросы 24/7 и снижать нагрузку на кол-центры.
+                </p>
+            </div>
+            <div class="service-card">
+                <div class="service-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="20" x2="18" y2="10"></line>
+                        <line x1="12" y1="20" x2="12" y2="4"></line>
+                        <line x1="6" y1="20" x2="6" y2="14"></line>
+                    </svg>
+                </div>
+                <h3>AI-аналитика</h3>
+                <p>
+                    Внедрение систем аналитики на основе машинного обучения для прогнозирования 
+                    трендов, оптимизации продаж и принятия обоснованных бизнес-решений.
+                </p>
+            </div>
+            <div class="service-card">
+                <div class="service-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="2" x2="12" y2="6"></line>
+                        <line x1="12" y1="18" x2="12" y2="22"></line>
+                        <line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line>
+                        <line x1="16.24" y1="16.24" x2="19.07" y2="19.07"></line>
+                        <line x1="2" y1="12" x2="6" y2="12"></line>
+                        <line x1="18" y1="12" x2="22" y2="12"></line>
+                        <line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line>
+                        <line x1="16.24" y1="7.76" x2="19.07" y2="4.93"></line>
+                    </svg>
+                </div>
+                <h3>Интеллектуальные системы</h3>
+                <p>
+                    Разработка AI-решений для управления цепочками поставок, логистикой и 
+                    другими критически важными бизнес-процессами.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- === ПРОЕКТЫ === -->
+    <section id="projects" class="projects">
+        <h2 class="section-title">Проекты</h2>
+        <p class="section-subtitle">Наши кейсы</p>
+        <div class="projects-grid">
+            <div class="project-card" data-project="1">
+                <h3>Внедрение чат-бота для сети отелей</h3>
+                <p>
+                    Разработали и внедрили интеллектуального чат-бота для сети отелей. 
+                    Результат: снижение нагрузки на кол-центр на 40%, улучшение качества 
+                    обслуживания клиентов и сокращение времени ожидания ответа.
+                </p>
+            </div>
+            <div class="project-card" data-project="2">
+                <h3>AI-система прогнозирования продаж</h3>
+                <p>
+                    Создали систему прогнозирования продаж для ритейл-компании с использованием 
+                    машинного обучения. Точность прогноза составила 95%, что позволило 
+                    оптимизировать управление запасами и увеличить прибыль на 15%.
+                </p>
+            </div>
+            <div class="project-card" data-project="3">
+                <h3>Автоматизация обработки документов в банке</h3>
+                <p>
+                    Внедрили AI-систему для автоматической обработки и классификации 
+                    финансовых документов. Система обрабатывает до 10,000 документов в день 
+                    с точностью 98%, сократив время обработки с 5 дней до 2 часов.
+                </p>
+            </div>
+            <div class="project-card" data-project="4">
+                <h3>Интеллектуальная система управления логистикой</h3>
+                <p>
+                    Разработали AI-платформу для оптимизации маршрутов и управления 
+                    цепочками поставок. Система автоматически оптимизирует маршруты в реальном 
+                    времени, снижая транспортные расходы на 25% и улучшая точность доставки.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- === ТЕХНОЛОГИИ === -->
+    <section id="technologies" class="technologies">
+        <h2 class="section-title">Технологии</h2>
+        <p class="section-subtitle">Наш стек</p>
+        <div class="tech-grid">
+            <div class="tech-item">Python</div>
+            <div class="tech-item">TensorFlow</div>
+            <div class="tech-item">PyTorch</div>
+            <div class="tech-item">LangChain</div>
+            <div class="tech-item">OpenAI GPT</div>
+            <div class="tech-item">RAG</div>
+            <div class="tech-item">SQL</div>
+            <div class="tech-item">Docker</div>
+            <div class="tech-item">Kubernetes</div>
+            <div class="tech-item">FastAPI</div>
+        </div>
+    </section>
+
+    <!-- === КОНТАКТЫ === -->
+    <section id="contact" class="contact">
+        <h2 class="section-title">Контакты</h2>
+        <p class="section-subtitle">Давайте обсудим ваш проект</p>
+        <div class="contact-container">
+            <div class="contact-info">
+                <div class="contact-item clickable-contact" data-contact="email">
+                    <div class="contact-item-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                            <polyline points="22,6 12,13 2,6"></polyline>
+                        </svg>
+                    </div>
+                    <div class="contact-item-text">
+                        <h4>Email</h4>
+                        <p>support@kassiopeya.ru</p>
+                    </div>
+                </div>
+                <div class="contact-item clickable-contact" data-contact="consultation">
+                    <div class="contact-item-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                        </svg>
+                    </div>
+                    <div class="contact-item-text">
+                        <h4>Консультация</h4>
+                        <p>Получите бесплатную консультацию по внедрению AI в ваш бизнес</p>
+                    </div>
+                </div>
+                <div class="contact-item clickable-contact" data-contact="quick">
+                    <div class="contact-item-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                        </svg>
+                    </div>
+                    <div class="contact-item-text">
+                        <h4>Быстрый ответ</h4>
+                        <p>Мы свяжемся с вами в течение 24 часов</p>
+                    </div>
+                </div>
+            </div>
+            <form class="contact-form" id="contactForm">
+                <div class="form-group">
+                    <label for="name">Имя</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="company">Компания</label>
+                    <input type="text" id="company" name="company">
+                </div>
+                <div class="form-group">
+                    <label for="message">Сообщение</label>
+                    <textarea id="message" name="message" required></textarea>
+                </div>
+                <button type="submit" class="btn-primary">Отправить заявку</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- === МОДАЛЬНОЕ ОКНО ДЛЯ ПРОЕКТОВ === -->
+    <div class="modal-overlay" id="projectModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Название проекта</h2>
+                <button class="modal-close" id="modalClose">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Контент будет заполнен через JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- === МОДАЛЬНОЕ ОКНО ДЛЯ КОНТАКТОВ === -->
+    <div class="modal-overlay" id="contactModal">
+        <div class="modal-content contact-modal">
+            <div class="modal-header">
+                <h2>Наши контакты</h2>
+                <button class="modal-close" id="contactModalClose">&times;</button>
+            </div>
+            <div class="modal-body contact-modal-body">
+                <p class="contact-modal-text">Вы можете написать или позвонить нам:</p>
+                <div class="contact-links">
+                    <a href="https://t.me/telegram" target="_blank" rel="noopener noreferrer" class="contact-link">
+                        <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.35-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
+                        </svg>
+                        <span>@telegram</span>
+                    </a>
+                    <a href="mailto:support@ai-kassiopeya.ru" class="contact-link">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                            <polyline points="22,6 12,13 2,6"></polyline>
+                        </svg>
+                        <span>support@ai-kassiopeya.ru</span>
+                    </a>
+                    <a href="tel:+79993759343" class="contact-link">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                        </svg>
+                        <span>+7 (999) 375-93-43</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- === ФУТЕР === -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">Кассиопея</div>
+            <p class="footer-text">Разработка AI-агентов для вашего бизнеса</p>
+            <div class="footer-links">
+                <a href="#home">Главная</a>
+                <a href="#about">О нас</a>
+                <a href="#services">Услуги</a>
+                <a href="#projects">Проекты</a>
+                <a href="#technologies">Технологии</a>
+                <a href="#contact">Контакты</a>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Кассиопея. Все права защищены.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // ============================================
+        // НАСТРОЙКА TELEGRAM BOT API
+        // ============================================
+        // ⚠️ ВАЖНО: Для безопасности используйте serverless function
+        // Токен бота НЕ должен быть в коде фронтенда для продакшена!
+        
+        // URL вашего serverless function (замените на реальный URL)
+        // Для Vercel: https://your-domain.vercel.app/api/telegram
+        // Для Netlify: https://your-domain.netlify.app/.netlify/functions/telegram
+        // Для локальной разработки: http://localhost:3000/api/telegram
+        
+        const TELEGRAM_API_URL = '/api/telegram'; // Измените на ваш URL API
+        
+        // ============================================
+        // НАСТРОЙКА EMAILJS
+        // ============================================
+        // ШАГ 1: Зарегистрируйтесь на https://www.emailjs.com
+        // ШАГ 2: Создайте Email Service (Gmail, Outlook и т.д.)
+        // ШАГ 3: Создайте Email Template с переменными: {{name}}, {{email}}, {{company}}, {{message}}
+        // ШАГ 4: Получите свои ключи и замените их ниже:
+        
+        const EMAILJS_CONFIG = {
+            PUBLIC_KEY: '9Vzd09RTmMKP9K1Ww',        // Замените на ваш Public Key из EmailJS
+            SERVICE_ID: 'service_454jerp',        // Замените на ID вашего Email Service
+            TEMPLATE_ID: 'template_ejz1ox9'       // Замените на ID вашего Email Template
+        };
+
+        // Инициализация EmailJS
+        let emailjsInitialized = false;
+        
+        function initializeEmailJS() {
+            try {
+                if (typeof emailjs !== 'undefined' && EMAILJS_CONFIG.PUBLIC_KEY && EMAILJS_CONFIG.PUBLIC_KEY !== 'YOUR_PUBLIC_KEY') {
+                    emailjs.init(EMAILJS_CONFIG.PUBLIC_KEY);
+                    emailjsInitialized = true;
+                    console.log('EmailJS инициализирован успешно');
+                    return true;
+                } else {
+                    console.warn('EmailJS SDK не загружен или не настроен');
+                    return false;
+                }
+            } catch (error) {
+                console.error('Ошибка инициализации EmailJS:', error);
+                return false;
+            }
+        }
+
+        // Попытка инициализации при загрузке страницы
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                setTimeout(initializeEmailJS, 100);
+            });
+        } else {
+            setTimeout(initializeEmailJS, 100);
+        }
+
+        // Альтернативная инициализация после полной загрузки страницы
+        window.addEventListener('load', () => {
+            if (!emailjsInitialized) {
+                setTimeout(initializeEmailJS, 500);
+            }
+        });
+
+        // ============================================
+
+        // === ИНТЕРАКТИВНАЯ НЕЙРОННАЯ СЕТЬ НА CANVAS ===
+        function initNeuralNetwork() {
+            const canvas = document.getElementById('aiCanvas');
+            if (!canvas) return;
+
+            const ctx = canvas.getContext('2d');
+            let nodes = [];
+            let mouseX = 0;
+            let mouseY = 0;
+            const nodeCount = 50;
+            const connectionDistance = 150;
+
+            // Настройка размера canvas
+            function resizeCanvas() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+
+            // Класс для узлов
+            class Node {
+                constructor(x, y) {
+                    this.x = x;
+                    this.y = y;
+                    this.vx = (Math.random() - 0.5) * 0.5;
+                    this.vy = (Math.random() - 0.5) * 0.5;
+                    this.radius = Math.random() * 2 + 1;
+                }
+
+                update() {
+                    // Движение узлов
+                    this.x += this.vx;
+                    this.y += this.vy;
+
+                    // Отскок от краев
+                    if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                    if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+
+                    // Притяжение к мышке
+                    const dx = mouseX - this.x;
+                    const dy = mouseY - this.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < 200 && distance > 0) {
+                        const force = (200 - distance) / 200;
+                        this.vx += (dx / distance) * force * 0.01;
+                        this.vy += (dy / distance) * force * 0.01;
+                    }
+
+                    // Ограничение скорости
+                    this.vx *= 0.99;
+                    this.vy *= 0.99;
+                }
+
+                draw() {
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(0, 102, 255, ${0.6})`;
+                    ctx.fill();
+                }
+            }
+
+            // Инициализация узлов
+            for (let i = 0; i < nodeCount; i++) {
+                nodes.push(new Node(
+                    Math.random() * canvas.width,
+                    Math.random() * canvas.height
+                ));
+            }
+
+            // Отслеживание мыши
+            document.addEventListener('mousemove', (e) => {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+            });
+
+            // Функция отрисовки связей
+            function drawConnections() {
+                for (let i = 0; i < nodes.length; i++) {
+                    for (let j = i + 1; j < nodes.length; j++) {
+                        const dx = nodes[i].x - nodes[j].x;
+                        const dy = nodes[i].y - nodes[j].y;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+
+                        if (distance < connectionDistance) {
+                            const opacity = (1 - distance / connectionDistance) * 0.3;
+                            ctx.beginPath();
+                            ctx.moveTo(nodes[i].x, nodes[i].y);
+                            ctx.lineTo(nodes[j].x, nodes[j].y);
+                            ctx.strokeStyle = `rgba(0, 102, 255, ${opacity})`;
+                            ctx.lineWidth = 1;
+                            ctx.stroke();
+                        }
+                    }
+                }
+            }
+
+            // Анимация
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                // Обновление и отрисовка узлов
+                nodes.forEach(node => {
+                    node.update();
+                });
+
+                // Отрисовка связей
+                drawConnections();
+
+                // Отрисовка узлов
+                nodes.forEach(node => {
+                    node.draw();
+                });
+
+                requestAnimationFrame(animate);
+            }
+
+            animate();
+        }
+
+        // Инициализация нейронной сети после загрузки страницы
+        window.addEventListener('load', () => {
+            setTimeout(initNeuralNetwork, 100);
+        });
+
+        // === ДИНАМИЧЕСКОЕ ИЗМЕНЕНИЕ ФОНА ПРИ СКРОЛЛЕ ===
+        let scrollProgress = 0;
+        const aiBackground = document.querySelector('.ai-background');
+        const aiCanvas = document.getElementById('aiCanvas');
+        const orbs = document.querySelectorAll('.gradient-orb');
+        
+        // Определение мобильного устройства
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth <= 768;
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        
+        // Кэширование функций интерполяции цветов
+        const colorCache = new Map();
+        
+        function hexToRgb(hex) {
+            if (colorCache.has(hex)) {
+                return colorCache.get(hex);
+            }
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            const rgb = result ? {
+                r: parseInt(result[1], 16),
+                g: parseInt(result[2], 16),
+                b: parseInt(result[3], 16)
+            } : null;
+            if (rgb) colorCache.set(hex, rgb);
+            return rgb;
+        }
+        
+        function rgbToHex(r, g, b) {
+            return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+        }
+        
+        function interpolateColor(color1, color2, factor) {
+            const rgb1 = hexToRgb(color1);
+            const rgb2 = hexToRgb(color2);
+            if (!rgb1 || !rgb2) return color1;
+            
+            const r = Math.round(rgb1.r + (rgb2.r - rgb1.r) * factor);
+            const g = Math.round(rgb1.g + (rgb2.g - rgb1.g) * factor);
+            const b = Math.round(rgb1.b + (rgb2.b - rgb1.b) * factor);
+            return rgbToHex(r, g, b);
+        }
+
+        // Цветовые схемы для разных секций - плавные градиенты с большим количеством цветов
+        const colorSchemes = [
+            { angle: 135, colors: ['#F0F7FF', '#E6F2FF', '#CCE5FF', '#B3D9FF', '#99CCFF'], intensity: 0.2 },
+            { angle: 180, colors: ['#CCE5FF', '#B3D9FF', '#99CCFF', '#80BFFF', '#66B2FF'], intensity: 0.5 },
+            { angle: 225, colors: ['#99CCFF', '#80BFFF', '#66B2FF', '#4D99FF', '#3385FF'], intensity: 0.7 },
+            { angle: 90, colors: ['#66B2FF', '#4D99FF', '#3385FF', '#1A73FF', '#0066FF'], intensity: 0.85 },
+            { angle: 45, colors: ['#3385FF', '#1A73FF', '#0066FF', '#0052CC', '#0047B3'], intensity: 1.0 }
+        ];
+
+        function updateBackgroundOnScroll() {
+            const windowHeight = window.innerHeight;
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            const documentHeight = document.documentElement.scrollHeight - windowHeight;
+            
+            // Прогресс скролла от 0 до 1
+            scrollProgress = Math.min(scrollTop / documentHeight, 1);
+            
+            if (documentHeight <= 0) {
+                scrollProgress = 0;
+            }
+            
+            if (!aiBackground) return;
+            
+            // Плавная интерполяция между схемами
+            const totalSchemes = colorSchemes.length;
+            const floatIndex = scrollProgress * (totalSchemes - 1);
+            const currentIndex = Math.floor(floatIndex);
+            const nextIndex = Math.min(currentIndex + 1, totalSchemes - 1);
+            const blend = floatIndex - currentIndex;
+            
+            const currentScheme = colorSchemes[currentIndex];
+            const nextScheme = colorSchemes[nextIndex];
+            
+            // Интерполяция угла градиента с более заметными изменениями
+            const currentAngle = currentScheme.angle || 135;
+            const nextAngle = nextScheme.angle || 135;
+            const interpolatedAngle = currentAngle + (nextAngle - currentAngle) * blend;
+            
+            // Плавная интерполяция цветов с созданием плавного градиента
+            const currentColors = currentScheme.colors || ['#F0F7FF', '#E6F2FF', '#CCE5FF', '#B3D9FF', '#99CCFF'];
+            const nextColors = nextScheme.colors || ['#F0F7FF', '#E6F2FF', '#CCE5FF', '#B3D9FF', '#99CCFF'];
+            
+            // Создание плавного градиента с множеством промежуточных цветов
+            // Уменьшаем количество остановок на мобильных для производительности
+            const gradientStops = [];
+            const numStops = isMobile ? 8 : 12;
+            
+            for (let i = 0; i < numStops; i++) {
+                const stopPosition = (i / (numStops - 1)) * 100;
+                
+                // Определяем позицию в текущих цветах
+                const colorPosition = (i / (numStops - 1)) * (currentColors.length - 1);
+                const colorIndex = Math.floor(colorPosition);
+                const colorBlend = colorPosition - colorIndex;
+                
+                const currentColor = currentColors[Math.min(colorIndex, currentColors.length - 1)];
+                const nextColorIndex = Math.min(colorIndex + 1, currentColors.length - 1);
+                const currentColorNext = currentColors[nextColorIndex];
+                
+                const nextColor = nextColors[Math.min(colorIndex, nextColors.length - 1)];
+                const nextColorNext = nextColors[Math.min(nextColorIndex, nextColors.length - 1)];
+                
+                // Интерполяция внутри текущей схемы
+                const interpolatedCurrent = interpolateColor(currentColor, currentColorNext, colorBlend);
+                const interpolatedNext = interpolateColor(nextColor, nextColorNext, colorBlend);
+                
+                // Интерполяция между схемами
+                const finalColor = interpolateColor(interpolatedCurrent, interpolatedNext, blend);
+                
+                gradientStops.push(`${finalColor} ${stopPosition}%`);
+            }
+            
+            const gradient = `linear-gradient(${interpolatedAngle}deg, ${gradientStops.join(', ')})`;
+            
+            // Более активное движение фона - волнообразные эффекты
+            aiBackground.style.background = gradient;
+            
+            // Движение фона только если не на мобильном и не prefers-reduced-motion
+            if (!isMobile && !prefersReducedMotion) {
+                const time = Date.now() * 0.001;
+                const scale = 1 + (scrollProgress * 0.1) + Math.sin(time) * 0.03;
+                const translateX = Math.sin(scrollProgress * Math.PI * 2 + time) * 20;
+                const translateY = Math.cos(scrollProgress * Math.PI * 2 + time * 1.1) * 15;
+                aiBackground.style.transform = `translate3d(${translateX}px, ${translateY}px, 0) scale(${scale})`;
+            } else {
+                aiBackground.style.transform = 'translate3d(0, 0, 0)';
+            }
+            
+            // Изменение интенсивности фона (прогрессивное затемнение)
+            const baseIntensity = currentScheme.intensity || 0.2;
+            const nextIntensity = nextScheme.intensity || 0.2;
+            const currentIntensity = baseIntensity + (nextIntensity - baseIntensity) * blend;
+            
+            // Более заметная прозрачность - от едва заметного до более насыщенного
+            aiBackground.style.opacity = 0.6 + (currentIntensity * 0.4);
+            
+            // Обновление градиентов орбов с более заметными изменениями
+            if (orbs && orbs.length >= 3) {
+                // Цвета орбов меняются более заметно
+                const orbIntensity = 0.3 + (scrollProgress * 0.7);
+                const orbColors = [
+                    `rgba(0, 102, 255, ${0.2 + orbIntensity * 0.6})`,
+                    `rgba(0, 82, 204, ${0.15 + orbIntensity * 0.5})`,
+                    `rgba(102, 153, 255, ${0.1 + orbIntensity * 0.4})`
+                ];
+                
+                orbs.forEach((orb, index) => {
+                    const orbColor = orbColors[index] || orbColors[0];
+                    const orbGradient = `radial-gradient(circle, ${orbColor} 0%, rgba(0, 0, 0, 0) 70%)`;
+                    orb.style.background = orbGradient;
+                    
+                    // Более заметное изменение непрозрачности орбов
+                    const orbOpacity = 0.3 + (scrollProgress * 0.5);
+                    orb.style.opacity = orbOpacity;
+                });
+            }
+
+            // Параллакс эффект для canvas - оптимизировано
+            if (aiCanvas && !prefersReducedMotion) {
+                const parallaxOffset = scrollTop * (isMobile ? 0.2 : 0.4);
+                if (!isMobile) {
+                    const time = Date.now() * 0.001;
+                    const rotation = scrollProgress * 360 + Math.sin(time) * 15;
+                    const canvasScale = 1 + (scrollProgress * 0.15);
+                    aiCanvas.style.transform = `translate3d(0, ${parallaxOffset}px, 0) rotate(${rotation * 0.1}deg) scale(${canvasScale})`;
+                } else {
+                    aiCanvas.style.transform = `translate3d(0, ${parallaxOffset}px, 0)`;
+                }
+                aiCanvas.style.opacity = 0.2 + (scrollProgress * 0.4);
+            }
+
+            // Параллакс эффект для градиентных орбов - оптимизировано
+            if (orbs && !prefersReducedMotion) {
+                const parallaxSpeed = isMobile ? 0.15 : 0.3;
+                const time = !isMobile ? Date.now() * 0.001 : 0;
+                
+                orbs.forEach((orb, index) => {
+                    const speed = parallaxSpeed + (index * (isMobile ? 0.1 : 0.15));
+                    const parallaxOffset = scrollTop * speed;
+                    
+                    if (!isMobile) {
+                        const orbScale = 1 + scrollProgress * 0.3 + (index * 0.1) + Math.sin(time + index) * 0.08;
+                        const orbRotation = scrollProgress * 180 * (index % 2 === 0 ? 1 : -1) + Math.sin(time * 0.5 + index) * 20;
+                        const orbX = Math.cos(time + index * 2) * (8 + scrollProgress * 15);
+                        const orbY = Math.sin(time * 1.2 + index * 1.5) * (6 + scrollProgress * 12);
+                        orb.style.transform = `translate3d(${parallaxOffset + orbX}px, ${parallaxOffset + orbY}px, 0) scale(${orbScale}) rotate(${orbRotation * 0.15}deg)`;
+                    } else {
+                        const orbScale = 1 + scrollProgress * 0.2;
+                        orb.style.transform = `translate3d(0, ${parallaxOffset}px, 0) scale(${orbScale})`;
+                    }
+                });
+            }
+            
+            // Анимация сетки фона - оптимизировано
+            const bgGrid = document.querySelector('.bg-grid');
+            if (bgGrid && !prefersReducedMotion) {
+                const gridOffset = scrollTop * (isMobile ? 0.3 : 0.6);
+                if (!isMobile) {
+                    const time = Date.now() * 0.0005;
+                    const gridRotation = scrollProgress * 5 + Math.cos(time * 0.3) * 3;
+                    bgGrid.style.transform = `translate3d(${gridOffset}px, ${gridOffset}px, 0) rotate(${gridRotation}deg)`;
+                } else {
+                    bgGrid.style.transform = `translate3d(${gridOffset}px, ${gridOffset}px, 0)`;
+                }
+                bgGrid.style.opacity = 0.2 + (scrollProgress * 0.3);
+                const gridIntensity = 0.12 + scrollProgress * 0.18;
+                bgGrid.style.backgroundImage = 
+                    `linear-gradient(rgba(0, 102, 255, ${gridIntensity}) 1px, transparent 1px),
+                     linear-gradient(90deg, rgba(0, 102, 255, ${gridIntensity}) 1px, transparent 1px)`;
+            }
+            
+            // Анимация декоративных кругов - оптимизировано
+            const bgCircles = document.querySelectorAll('.bg-decoration');
+            if (bgCircles && !prefersReducedMotion) {
+                const time = !isMobile ? Date.now() * 0.001 : 0;
+                bgCircles.forEach((circle, index) => {
+                    const circleOffset = scrollTop * (isMobile ? 0.1 : (0.15 + index * 0.08));
+                    
+                    if (!isMobile) {
+                        const circleScale = 1 + (scrollProgress * 0.3) + Math.sin(time + index * 1.2) * 0.15;
+                        const circleRotation = scrollProgress * 90 * (index % 2 === 0 ? 1 : -1) + Math.cos(time * 0.8 + index) * 20;
+                        const circleX = Math.sin(time * 1.5 + index * 2.5) * (15 + scrollProgress * 30);
+                        const circleY = Math.cos(time * 1.2 + index * 2) * (12 + scrollProgress * 25);
+                        circle.style.transform = `translate3d(${circleOffset + circleX}px, ${circleOffset + circleY}px, 0) scale(${circleScale}) rotate(${circleRotation * 0.3}deg)`;
+                        circle.style.opacity = 0.35 + (scrollProgress * 0.35) + Math.sin(time + index) * 0.15;
+                    } else {
+                        const circleScale = 1 + (scrollProgress * 0.2);
+                        circle.style.transform = `translate3d(0, ${circleOffset}px, 0) scale(${circleScale})`;
+                        circle.style.opacity = 0.25 + (scrollProgress * 0.25);
+                    }
+                    
+                    // Изменение цвета кругов при скролле
+                    if (!isMobile) {
+                        const colorIntensity = scrollProgress * 255;
+                        const circleColor = `rgba(${Math.floor(colorIntensity * 0.3)}, ${Math.floor(colorIntensity * 0.5)}, 255, ${0.15 + scrollProgress * 0.25})`;
+                        circle.style.background = `radial-gradient(circle, ${circleColor} 0%, rgba(0, 102, 255, ${0.12 + scrollProgress * 0.15}) 50%, transparent 70%)`;
+                        circle.style.boxShadow = `0 0 ${30 + scrollProgress * 60}px rgba(0, 102, 255, ${0.25 + scrollProgress * 0.3})`;
+                    }
+                });
+            }
+        }
+
+        // Оптимизированный обработчик скролла с throttle
+        let ticking = false;
+        function onScroll() {
+            if (!ticking) {
+                window.requestAnimationFrame(() => {
+                    updateBackgroundOnScroll();
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        }
+
+        window.addEventListener('scroll', onScroll, { passive: true });
+        updateBackgroundOnScroll(); // Инициализация при загрузке
+        
+        // Непрерывная анимация фона только для десктопов (оптимизация производительности)
+        let animationFrameId;
+        let lastTime = 0;
+        const animationInterval = isMobile ? 33 : 16; // 30fps на мобильных, 60fps на десктопе
+        
+        function animateBackground(currentTime) {
+            // Throttle для производительности
+            if (currentTime - lastTime >= animationInterval) {
+                if (!prefersReducedMotion) {
+                    updateBackgroundOnScroll();
+                }
+                lastTime = currentTime;
+            }
+            
+            if (!prefersReducedMotion && (!isMobile || document.hidden === false)) {
+                animationFrameId = requestAnimationFrame(animateBackground);
+            }
+        }
+        
+        // Запускаем анимацию только для десктопов или с пониженной частотой на мобильных
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                if (!prefersReducedMotion) {
+                    animateBackground(performance.now());
+                }
+            }, 100);
+        });
+        
+        // Пауза анимации когда вкладка неактивна
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                if (animationFrameId) {
+                    cancelAnimationFrame(animationFrameId);
+                }
+            } else if (!prefersReducedMotion) {
+                animateBackground(performance.now());
+            }
+        });
+
+        // === МОДАЛЬНОЕ ОКНО ДЛЯ ПРОЕКТОВ ===
+        const projectsData = {
+            1: {
+                title: 'Внедрение чат-бота для сети отелей',
+                description: 'Разработали и внедрили интеллектуального AI-чатбота для крупной сети отелей, способного обрабатывать запросы на русском и английском языках. Бот интегрирован с системой бронирования и может отвечать на вопросы о доступности номеров, услугах отеля, правилах отмены и многом другом.',
+                details: [
+                    { label: 'Клиент', value: 'Сеть отелей "Premium Stay"' },
+                    { label: 'Срок', value: '3 месяца' },
+                    { label: 'Команда', value: '5 разработчиков' },
+                    { label: 'Охват', value: '15 отелей' }
+                ],
+                technologies: ['Python', 'OpenAI GPT-4', 'LangChain', 'FastAPI', 'PostgreSQL', 'Docker'],
+                results: [
+                    'Снижение нагрузки на кол-центр на 40%',
+                    'Время ответа клиентам сократилось с 3 минут до 10 секунд',
+                    'Обработка до 500 запросов одновременно',
+                    'Точность ответов составила 94%',
+                    'Клиентская удовлетворенность выросла на 35%',
+                    'Экономия на операционных затратах: 2.5 млн руб/год'
+                ]
+            },
+            2: {
+                title: 'AI-система прогнозирования продаж',
+                description: 'Создали комплексную систему прогнозирования продаж для крупной ритейл-сети с использованием машинного обучения и анализа временных рядов. Система учитывает сезонность, тренды, внешние факторы (праздники, погода) и автоматически генерирует прогнозы с указанием доверительных интервалов.',
+                details: [
+                    { label: 'Клиент', value: 'Ритейл-сеть "МегаМаркет"' },
+                    { label: 'Срок', value: '4 месяца' },
+                    { label: 'Команда', value: '6 разработчиков' },
+                    { label: 'Товарных позиций', value: '50,000+' }
+                ],
+                technologies: ['Python', 'TensorFlow', 'Prophet', 'Pandas', 'Apache Airflow', 'Redis', 'Grafana'],
+                results: [
+                    'Точность прогноза составила 95%',
+                    'Оптимизация управления запасами на 30%',
+                    'Увеличение прибыли на 15%',
+                    'Сокращение излишков товара на 25%',
+                    'Снижение дефицита товаров на 40%',
+                    'ROI проекта: 320% за первый год'
+                ]
+            },
+            3: {
+                title: 'Автоматизация обработки документов в банке',
+                description: 'Внедрили AI-систему для автоматической обработки, распознавания и классификации финансовых документов. Система использует компьютерное зрение и NLP для извлечения данных из различных форматов документов (PDF, сканы, фотографии) с высокой точностью.',
+                details: [
+                    { label: 'Клиент', value: 'Коммерческий банк' },
+                    { label: 'Срок', value: '5 месяцев' },
+                    { label: 'Команда', value: '8 разработчиков' },
+                    { label: 'Документов/день', value: '10,000+' }
+                ],
+                technologies: ['Python', 'PyTorch', 'Tesseract OCR', 'OpenCV', 'spaCy', 'Celery', 'Kubernetes', 'MongoDB'],
+                results: [
+                    'Точность распознавания: 98%',
+                    'Время обработки сократилось с 5 дней до 2 часов',
+                    'Обработка до 10,000 документов в день',
+                    'Автоматическая классификация 15 типов документов',
+                    'Снижение ошибок ручного ввода на 95%',
+                    'Экономия времени сотрудников: 2000 часов/месяц'
+                ]
+            },
+            4: {
+                title: 'Интеллектуальная система управления логистикой',
+                description: 'Разработали AI-платформу для оптимизации маршрутов доставки и управления цепочками поставок. Система анализирует трафик, погодные условия, загруженность складов и автоматически оптимизирует маршруты в реальном времени, учитывая множество ограничений и приоритетов.',
+                details: [
+                    { label: 'Клиент', value: 'Логистическая компания "Быстрая Доставка"' },
+                    { label: 'Срок', value: '6 месяцев' },
+                    { label: 'Команда', value: '7 разработчиков' },
+                    { label: 'Транспортных единиц', value: '200+' }
+                ],
+                technologies: ['Python', 'OR-Tools', 'Reinforcement Learning', 'PostgreSQL', 'Redis', 'Kubernetes', 'Apache Kafka', 'React'],
+                results: [
+                    'Снижение транспортных расходов на 25%',
+                    'Улучшение точности доставки до 98%',
+                    'Оптимизация маршрутов в реальном времени',
+                    'Сокращение времени в пути на 20%',
+                    'Снижение простоев транспорта на 30%',
+                    'Экономия топлива: 15% от общего потребления'
+                ]
+            }
+        };
+
+        const modalOverlay = document.getElementById('projectModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalBody = document.getElementById('modalBody');
+        const modalClose = document.getElementById('modalClose');
+        const projectCards = document.querySelectorAll('.project-card');
+
+        function openModal(projectId) {
+            const project = projectsData[projectId];
+            if (!project) return;
+
+            modalTitle.textContent = project.title;
+            
+            const detailsHTML = project.details.map(detail => `
+                <div class="modal-detail-item">
+                    <h4>${detail.label}</h4>
+                    <p>${detail.value}</p>
+                </div>
+            `).join('');
+
+            const techHTML = project.technologies.map(tech => `
+                <span class="modal-tech-tag">${tech}</span>
+            `).join('');
+
+            const resultsHTML = project.results.map(result => `
+                <li>${result}</li>
+            `).join('');
+
+            modalBody.innerHTML = `
+                <p class="modal-description">${project.description}</p>
+                
+                <div class="modal-details">
+                    ${detailsHTML}
+                </div>
+
+                <div class="modal-tech">
+                    <h3>Использованные технологии</h3>
+                    <div class="modal-tech-tags">
+                        ${techHTML}
+                    </div>
+                </div>
+
+                <div class="modal-results">
+                    <h3>Достигнутые результаты</h3>
+                    <ul>
+                        ${resultsHTML}
+                    </ul>
+                </div>
+            `;
+
+            modalOverlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            modalOverlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        projectCards.forEach(card => {
+            card.addEventListener('click', () => {
+                const projectId = card.getAttribute('data-project');
+                openModal(projectId);
+            });
+        });
+
+        modalClose.addEventListener('click', closeModal);
+        
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) {
+                closeModal();
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && modalOverlay.classList.contains('active')) {
+                closeModal();
+            }
+        });
+
+        // === МОДАЛЬНОЕ ОКНО ДЛЯ КОНТАКТОВ ===
+        const contactModal = document.getElementById('contactModal');
+        const contactModalClose = document.getElementById('contactModalClose');
+        const clickableContacts = document.querySelectorAll('.clickable-contact');
+
+        function openContactModal() {
+            contactModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeContactModal() {
+            contactModal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        clickableContacts.forEach(contact => {
+            contact.addEventListener('click', () => {
+                openContactModal();
+            });
+        });
+
+        contactModalClose.addEventListener('click', closeContactModal);
+
+        contactModal.addEventListener('click', (e) => {
+            if (e.target === contactModal) {
+                closeContactModal();
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && contactModal.classList.contains('active')) {
+                closeContactModal();
+            }
+        });
+
+        // === МОБИЛЬНОЕ МЕНЮ ===
+        const menuToggle = document.getElementById('menuToggle');
+        const navMenu = document.getElementById('navMenu');
+
+        menuToggle.addEventListener('click', () => {
+            navMenu.classList.toggle('active');
+            menuToggle.classList.toggle('active');
+        });
+
+        // Закрытие меню при клике на ссылку
+        document.querySelectorAll('.nav-menu a').forEach(link => {
+            link.addEventListener('click', () => {
+                navMenu.classList.remove('active');
+                menuToggle.classList.remove('active');
+            });
+        });
+
+        // === АНИМАЦИИ ПРИ СКРОЛЛЕ ===
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        // Наблюдение за элементами с анимацией
+        document.querySelectorAll('.service-card, .project-card, .tech-item').forEach(el => {
+            observer.observe(el);
+        });
+
+        // ============================================
+        // ОТПРАВКА УВЕДОМЛЕНИЯ В TELEGRAM
+        // ============================================
+        /**
+         * Отправляет уведомление в Telegram через serverless function
+         * @param {Object} formData - Данные формы {name, email, company, message}
+         */
+        async function sendTelegramNotification(formData) {
+            try {
+                // Проверяем наличие URL API
+                if (!TELEGRAM_API_URL || TELEGRAM_API_URL === '/api/telegram') {
+                    console.warn('Telegram API URL not configured. Skipping Telegram notification.');
+                    return;
+                }
+
+                const response = await fetch(TELEGRAM_API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        name: formData.name,
+                        email: formData.email,
+                        company: formData.company || '',
+                        message: formData.message
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    console.log('Telegram notification sent successfully:', result);
+                } else {
+                    console.warn('Telegram notification failed:', result.error);
+                    // Не прерываем процесс, так как это не критично
+                }
+            } catch (error) {
+                console.error('Error sending Telegram notification:', error);
+                // Не прерываем процесс, так как это не критично для работы формы
+            }
+        }
+
+        // === ФУНКЦИЯ ПОКАЗА УВЕДОМЛЕНИЙ ===
+        function showNotification(type, title, message) {
+            // Удаляем предыдущие уведомления
+            const existingNotification = document.querySelector('.notification');
+            if (existingNotification) {
+                existingNotification.remove();
+            }
+
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            
+            const successIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`;
+            const errorIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>`;
+            const icon = type === 'success' ? successIcon : errorIcon;
+            
+            notification.innerHTML = `
+                <div class="notification-icon">${icon}</div>
+                <div class="notification-content">
+                    <h4>${title}</h4>
+                    <p>${message}</p>
+                </div>
+            `;
+
+            document.body.appendChild(notification);
+
+            // Автоматическое скрытие через 5 секунд
+            setTimeout(() => {
+                notification.classList.add('hide');
+                setTimeout(() => notification.remove(), 300);
+            }, 5000);
+
+            // Скролл к уведомлению для мобильных устройств
+            if (window.innerWidth <= 768) {
+                notification.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        }
+
+        // === ОБРАБОТКА ФОРМЫ ===
+        const contactForm = document.getElementById('contactForm');
+        const submitButton = contactForm.querySelector('.btn-primary');
+
+        contactForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Проверка конфигурации EmailJS
+            if (EMAILJS_CONFIG.PUBLIC_KEY === 'YOUR_PUBLIC_KEY' || 
+                EMAILJS_CONFIG.SERVICE_ID === 'YOUR_SERVICE_ID' || 
+                EMAILJS_CONFIG.TEMPLATE_ID === 'YOUR_TEMPLATE_ID') {
+                showNotification('error', 
+                    'Форма не настроена', 
+                    'Пожалуйста, настройте EmailJS в коде (см. комментарии в начале скрипта). Для тестирования используется демо-режим.');
+                
+                // Демо-режим (для тестирования без EmailJS)
+                submitButton.disabled = true;
+                submitButton.classList.add('loading');
+                
+                setTimeout(() => {
+                    submitButton.disabled = false;
+                    submitButton.classList.remove('loading');
+                    showNotification('success', 
+                        'Заявка отправлена (демо)', 
+                        'В реальной версии письмо будет отправлено на ваш email после настройки EmailJS.');
+                    contactForm.reset();
+                }, 1500);
+                return;
+            }
+
+            // Получение данных формы
+            const formData = {
+                name: document.getElementById('name').value.trim(),
+                email: document.getElementById('email').value.trim(),
+                company: document.getElementById('company').value.trim(),
+                message: document.getElementById('message').value.trim()
+            };
+
+            // Валидация
+            if (!formData.name || !formData.email || !formData.message) {
+                showNotification('error', 
+                    'Ошибка валидации', 
+                    'Пожалуйста, заполните все обязательные поля.');
+                return;
+            }
+
+            // Проверка и повторная попытка инициализации EmailJS
+            if (!emailjsInitialized || typeof emailjs === 'undefined') {
+                // Попытка инициализировать еще раз
+                if (initializeEmailJS()) {
+                    console.log('EmailJS инициализирован перед отправкой');
+                } else {
+                    showNotification('error', 
+                        'EmailJS не загружен', 
+                        'Проверьте подключение к интернету и обновите страницу. Проверьте консоль браузера (F12).');
+                    return;
+                }
+            }
+
+            // Валидация email
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(formData.email)) {
+                showNotification('error', 
+                    'Неверный email', 
+                    'Пожалуйста, введите корректный email адрес.');
+                return;
+            }
+
+            // Визуальная обратная связь (блокировка кнопки)
+            submitButton.disabled = true;
+            submitButton.classList.add('loading');
+            const originalButtonText = submitButton.textContent;
+            submitButton.textContent = 'Отправка...';
+
+            try {
+                // Подготовка данных для отправки
+                const templateParams = {
+                    from_name: formData.name,
+                    from_email: formData.email,
+                    name: formData.name,
+                    email: formData.email,
+                    company: formData.company || 'Не указано',
+                    message: formData.message,
+                    to_email: 'support@kassiopeya.ru'
+                };
+
+                console.log('Отправка письма с параметрами:', templateParams);
+                console.log('Service ID:', EMAILJS_CONFIG.SERVICE_ID);
+                console.log('Template ID:', EMAILJS_CONFIG.TEMPLATE_ID);
+
+                // Отправка через EmailJS
+                const response = await emailjs.send(
+                    EMAILJS_CONFIG.SERVICE_ID,
+                    EMAILJS_CONFIG.TEMPLATE_ID,
+                    templateParams
+                );
+
+                console.log('Ответ от EmailJS:', response);
+
+                // Успешная отправка EmailJS - теперь отправляем в Telegram
+                try {
+                    await sendTelegramNotification(formData);
+                } catch (telegramError) {
+                    console.warn('Ошибка отправки в Telegram (не критично):', telegramError);
+                    // Не прерываем процесс, если Telegram не работает
+                }
+
+                // Успешная отправка
+                showNotification('success', 
+                    'Заявка отправлена!', 
+                    'Мы свяжемся с вами в ближайшее время.');
+                
+                // Очистка формы
+                contactForm.reset();
+                
+            } catch (error) {
+                console.error('Детальная ошибка отправки формы:', error);
+                console.error('Код ошибки:', error.status);
+                console.error('Текст ошибки:', error.text);
+                
+                // Более детальное сообщение об ошибке
+                let errorMessage = 'Произошла ошибка при отправке формы.';
+                
+                if (error.status === 400) {
+                    errorMessage = 'Неверный запрос. Проверьте настройки EmailJS шаблона.';
+                } else if (error.status === 401) {
+                    errorMessage = 'Ошибка авторизации. Проверьте Public Key в настройках.';
+                } else if (error.status === 404) {
+                    errorMessage = 'Service или Template не найдены. Проверьте Service ID и Template ID.';
+                } else if (error.status === 429) {
+                    errorMessage = 'Превышен лимит отправки писем. Попробуйте позже.';
+                } else if (error.text) {
+                    errorMessage = `Ошибка: ${error.text}`;
+                }
+                
+                showNotification('error', 
+                    'Ошибка отправки', 
+                    errorMessage + ' Проверьте консоль браузера (F12) для деталей.');
+            } finally {
+                // Восстановление кнопки
+                submitButton.disabled = false;
+                submitButton.classList.remove('loading');
+                submitButton.textContent = originalButtonText;
+            }
+        });
+
+        // === ПЛАВНАЯ ПРОКРУТКА ДЛЯ ЯКОРНЫХ ССЫЛОК ===
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    const navHeight = document.querySelector('nav').offsetHeight;
+                    const targetPosition = target.offsetTop - navHeight;
+                    window.scrollTo({
+                        top: targetPosition,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // === ИЗМЕНЕНИЕ ПРОЗРАЧНОСТИ НАВИГАЦИИ ПРИ СКРОЛЛЕ ===
+        window.addEventListener('scroll', () => {
+            const nav = document.querySelector('nav');
+            if (window.scrollY > 50) {
+                nav.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+            } else {
+                nav.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
+            }
+        });
+    </script>
+</body>
+</html>
