@@ -16,6 +16,17 @@
  */
 
 export default async function handler(req, res) {
+    // Логируем входящий запрос для отладки
+    console.log('📥 Incoming request:', {
+        method: req.method,
+        url: req.url,
+        headers: {
+            'content-type': req.headers['content-type'],
+            'origin': req.headers['origin'],
+            'user-agent': req.headers['user-agent']?.substring(0, 50)
+        }
+    });
+
     // Устанавливаем CORS заголовки для всех ответов (важно ставить ДО проверки метода)
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -24,20 +35,38 @@ export default async function handler(req, res) {
 
     // Обработка CORS preflight запросов (OPTIONS)
     if (req.method === 'OPTIONS') {
+        console.log('✅ Handling OPTIONS preflight request');
         return res.status(200).end();
     }
 
     // Разрешаем только POST запросы (OPTIONS уже обработан выше)
     if (req.method !== 'POST') {
+        console.error('❌ Invalid method:', req.method);
         return res.status(405).json({ 
             success: false,
-            error: 'Method not allowed. Use POST.' 
+            error: `Method not allowed. Use POST. Received: ${req.method}` 
         });
     }
 
+    console.log('✅ POST request received');
+
     try {
+        // Парсим тело запроса (Vercel может передавать как объект или строку)
+        let body = req.body;
+        if (typeof body === 'string') {
+            try {
+                body = JSON.parse(body);
+            } catch (parseError) {
+                console.error('❌ Error parsing request body:', parseError);
+                return res.status(400).json({
+                    success: false,
+                    error: 'Invalid JSON in request body'
+                });
+            }
+        }
+        
         // Получаем данные из тела запроса
-        const { name, email, company, message } = req.body;
+        const { name, email, company, message } = body || {};
 
         // Валидация обязательных полей
         if (!name || !email || !message) {
