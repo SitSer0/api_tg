@@ -85,9 +85,10 @@ export default async function handler(req, res) {
             });
         }
 
-        // Получаем токен бота и Chat ID из переменных окружения
+        // Получаем токен бота, Chat ID и Topic ID из переменных окружения
         const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
         let CHAT_ID = process.env.TELEGRAM_CHAT_ID;
+        let TOPIC_ID = process.env.TELEGRAM_TOPIC_ID; // ID топика (опционально)
 
         // Логирование для отладки (без токена)
         console.log('Telegram configuration check:');
@@ -95,6 +96,8 @@ export default async function handler(req, res) {
         console.log('- BOT_TOKEN length:', BOT_TOKEN ? BOT_TOKEN.length : 0);
         console.log('- CHAT_ID exists:', !!CHAT_ID);
         console.log('- CHAT_ID value:', CHAT_ID ? '***' : 'missing');
+        console.log('- TOPIC_ID exists:', !!TOPIC_ID);
+        console.log('- TOPIC_ID value:', TOPIC_ID || 'not set (will send to general chat)');
 
         // Проверка наличия конфигурации
         if (!BOT_TOKEN || !CHAT_ID) {
@@ -118,6 +121,17 @@ export default async function handler(req, res) {
             });
         }
 
+        // Преобразуем Topic ID в число, если указан (опционально)
+        let topicIdNum = null;
+        if (TOPIC_ID) {
+            topicIdNum = Number(TOPIC_ID);
+            if (isNaN(topicIdNum)) {
+                console.warn('⚠️ Invalid TOPIC_ID format:', TOPIC_ID, '- will send to general chat');
+            } else {
+                console.log('✅ Topic ID configured:', topicIdNum);
+            }
+        }
+
         console.log('✅ Configuration valid');
         console.log('📝 Form data received:', {
             name: name.substring(0, 20) + '...',
@@ -135,7 +149,8 @@ export default async function handler(req, res) {
         const telegramResponse = await sendTelegramMessage(
             BOT_TOKEN,
             chatIdNum,
-            telegramMessage
+            telegramMessage,
+            topicIdNum // Передаём ID топика, если указан
         );
 
         console.log('📥 Telegram API response received:');
@@ -202,13 +217,18 @@ function formatTelegramMessage(name, email, company, message) {
 
 /**
  * Отправляет сообщение в Telegram через Bot API
+ * @param {string} botToken - Токен бота
+ * @param {number} chatId - ID чата/группы
+ * @param {string} text - Текст сообщения
+ * @param {number|null} topicId - ID топика (опционально, для форумов)
  */
-async function sendTelegramMessage(botToken, chatId, text) {
+async function sendTelegramMessage(botToken, chatId, text, topicId = null) {
     const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
     
     console.log('📡 Calling Telegram Bot API...');
     console.log('- URL:', url.replace(botToken, 'TOKEN_HIDDEN'));
     console.log('- Chat ID:', chatId);
+    console.log('- Topic ID:', topicId || 'not set (general chat)');
     console.log('- Message length:', text.length);
     
     const requestBody = {
@@ -217,8 +237,20 @@ async function sendTelegramMessage(botToken, chatId, text) {
         parse_mode: 'HTML',
         disable_web_page_preview: true
     };
+
+    // Если указан Topic ID, добавляем его в запрос (для форумов)
+    if (topicId !== null && !isNaN(topicId)) {
+        requestBody.message_thread_id = topicId;
+        console.log('📌 Sending to topic:', topicId);
+    } else {
+        console.log('📢 Sending to general chat');
+    }
     
-    console.log('📤 Request body (chat_id only):', { chat_id: chatId, text_length: text.length });
+    console.log('📤 Request body (chat_id only):', { 
+        chat_id: chatId, 
+        message_thread_id: topicId || 'none',
+        text_length: text.length 
+    });
 
     try {
         const response = await fetch(url, {

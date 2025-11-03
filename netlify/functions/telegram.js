@@ -48,9 +48,10 @@ exports.handler = async (event, context) => {
             };
         }
 
-        // Получаем токен бота и Chat ID из переменных окружения
+        // Получаем токен бота, Chat ID и Topic ID из переменных окружения
         const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
         const CHAT_ID = process.env.TELEGRAM_CHAT_ID;
+        const TOPIC_ID = process.env.TELEGRAM_TOPIC_ID; // ID топика (опционально)
 
         // Проверка наличия конфигурации
         if (!BOT_TOKEN || !CHAT_ID) {
@@ -64,11 +65,21 @@ exports.handler = async (event, context) => {
             };
         }
 
+        // Преобразуем Topic ID в число, если указан (опционально)
+        let topicIdNum = null;
+        if (TOPIC_ID) {
+            topicIdNum = Number(TOPIC_ID);
+            if (isNaN(topicIdNum)) {
+                console.warn('Invalid TOPIC_ID format, will send to general chat');
+                topicIdNum = null;
+            }
+        }
+
         // Формируем структурированное сообщение
         const telegramMessage = formatTelegramMessage(name, email, company, message);
 
         // Отправляем сообщение в Telegram
-        const telegramResponse = await sendTelegramMessage(BOT_TOKEN, CHAT_ID, telegramMessage);
+        const telegramResponse = await sendTelegramMessage(BOT_TOKEN, CHAT_ID, telegramMessage, topicIdNum);
 
         // Проверяем успешность отправки
         if (telegramResponse.ok) {
@@ -127,21 +138,32 @@ function formatTelegramMessage(name, email, company, message) {
 
 /**
  * Отправляет сообщение в Telegram через Bot API
+ * @param {string} botToken - Токен бота
+ * @param {string|number} chatId - ID чата/группы
+ * @param {string} text - Текст сообщения
+ * @param {number|null} topicId - ID топика (опционально, для форумов)
  */
-async function sendTelegramMessage(botToken, chatId, text) {
+async function sendTelegramMessage(botToken, chatId, text, topicId = null) {
     const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
+    
+    const requestBody = {
+        chat_id: chatId,
+        text: text,
+        parse_mode: 'HTML',
+        disable_web_page_preview: true
+    };
+
+    // Если указан Topic ID, добавляем его в запрос (для форумов)
+    if (topicId !== null && !isNaN(topicId)) {
+        requestBody.message_thread_id = topicId;
+    }
     
     const response = await fetch(url, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-            chat_id: chatId,
-            text: text,
-            parse_mode: 'HTML',
-            disable_web_page_preview: true
-        })
+        body: JSON.stringify(requestBody)
     });
 
     return await response.json();
